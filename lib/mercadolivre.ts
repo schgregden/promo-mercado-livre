@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 import { Promotion } from "@/types/promotion";
 
 /**
@@ -84,40 +85,68 @@ async function requestToken(body: Record<string, string>): Promise<TokenResponse
 }
 
 export async function exchangeCodeForToken(code: string): Promise<TokenResponse> {
-  return requestToken({
+  const tokens = await requestToken({
     grant_type: "authorization_code",
     client_id: requireEnv("MELI_CLIENT_ID"),
     client_secret: requireEnv("MELI_CLIENT_SECRET"),
     code,
     redirect_uri: requireEnv("MELI_REDIRECT_URI"),
   });
+  console.log(
+    `Mercado Livre: code trocado por token com sucesso (expires_in=${tokens.expires_in}s, tem refresh_token=${Boolean(tokens.refresh_token)}).`
+  );
+  return tokens;
 }
 
 async function refreshAccessToken(refreshToken: string): Promise<TokenResponse> {
-  return requestToken({
+  const tokens = await requestToken({
     grant_type: "refresh_token",
     client_id: requireEnv("MELI_CLIENT_ID"),
     client_secret: requireEnv("MELI_CLIENT_SECRET"),
     refresh_token: refreshToken,
   });
+  console.log(`Mercado Livre: access_token renovado com sucesso (expires_in=${tokens.expires_in}s).`);
+  return tokens;
 }
 
-export async function storeTokens(tokens: TokenResponse): Promise<void> {
-  const stored: StoredTokens = {
+function toStoredTokens(tokens: TokenResponse): StoredTokens {
+  return {
     accessToken: tokens.access_token,
     refreshToken: tokens.refresh_token,
     expiresAt: Date.now() + tokens.expires_in * 1000,
   };
+}
+
+const TOKEN_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+  maxAge: 60 * 60 * 24 * 30,
+};
+
+/**
+ * Writes the token cookie directly onto the Response a Route Handler is
+ * about to return. This is the reliable path: Route Handlers can also write
+ * cookies via the `cookies()` API from `next/headers`, but that mutates a
+ * separate request-scoped store that Next.js has to merge back into
+ * whichever Response object the handler returns — mixing that with a
+ * NextResponse you already built yourself (e.g. to also delete another
+ * cookie) is an easy way to lose the Set-Cookie header. Setting it straight
+ * on `response.cookies` removes that ambiguity, which matters most here
+ * since this is the very first time the token is ever persisted.
+ */
+export function applyTokensToResponse(response: NextResponse, tokens: TokenResponse): void {
+  const stored = toStoredTokens(tokens);
+  response.cookies.set(TOKEN_COOKIE, JSON.stringify(stored), TOKEN_COOKIE_OPTIONS);
+}
+
+export async function storeTokens(tokens: TokenResponse): Promise<void> {
+  const stored = toStoredTokens(tokens);
 
   try {
     const cookieStore = await cookies();
-    cookieStore.set(TOKEN_COOKIE, JSON.stringify(stored), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 30,
-    });
+    cookieStore.set(TOKEN_COOKIE, JSON.stringify(stored), TOKEN_COOKIE_OPTIONS);
   } catch (error) {
     // Server Components can only read cookies, not write them. If a token
     // refresh happens during the initial SSR render (app/page.tsx), the
@@ -143,6 +172,7 @@ async function getValidAccessToken(): Promise<string> {
   const stored = await getStoredTokens();
 
   if (!stored) {
+    console.error("Mercado Livre: nenhum cookie de token encontrado nesta requisição.");
     throw new Error(
       "Nenhuma conta do Mercado Livre autorizada. Acesse /api/auth/mercadolivre para autorizar."
     );
@@ -150,15 +180,18 @@ async function getValidAccessToken(): Promise<string> {
 
   const isExpiringSoon = Date.now() > stored.expiresAt - 60_000;
   if (!isExpiringSoon) {
+    console.log(`Mercado Livre: usando access_token em cache (expira em ${stored.expiresAt}).`);
     return stored.accessToken;
   }
 
   if (!stored.refreshToken) {
+    console.error("Mercado Livre: access_token expirado e sem refresh_token disponível.");
     throw new Error(
       "Token do Mercado Livre expirado e sem refresh_token disponível. Autorize novamente em /api/auth/mercadolivre."
     );
   }
 
+  console.log("Mercado Livre: access_token expirado/expirando, renovando com refresh_token...");
   const refreshed = await refreshAccessToken(stored.refreshToken);
   await storeTokens(refreshed);
   return refreshed.access_token;
@@ -201,6 +234,7 @@ function getConfiguredItemIds(): string[] {
     throw new Error("MELI_ITEM_IDS está vazio.");
   }
 
+  console.log(`Mercado Livre: MELI_ITEM_IDS configurado com ${ids.length} ID(s): ${ids.join(", ")}`);
   return ids;
 }
 
@@ -218,10 +252,14 @@ async function fetchItemsByIds(ids: string[], accessToken: string): Promise<Merc
 
   for (const batch of batches) {
     const url = `${API_BASE_URL}/items?ids=${batch.join(",")}`;
+    console.log(`Mercado Livre: consultando ${batch.length} ID(s): ${batch.join(", ")}`);
+
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${accessToken}` },
       cache: "no-store",
     });
+
+    console.log(`Mercado Livre: resposta HTTP ${response.status} para ${batch.join(", ")}`);
 
     if (!response.ok) {
       const errorBody = await response.text();
@@ -234,11 +272,12 @@ async function fetchItemsByIds(ids: string[], accessToken: string): Promise<Merc
       if (entry.code === 200 && entry.body) {
         items.push(entry.body);
       } else {
-        console.error("Mercado Livre item indisponível:", entry);
+        console.error(`Mercado Livre: item ${entry.body?.id ?? "?"} indisponível (code=${entry.code}).`);
       }
     }
   }
 
+  console.log(`Mercado Livre: ${items.length} de ${ids.length} item(ns) obtidos com sucesso.`);
   return items;
 }
 

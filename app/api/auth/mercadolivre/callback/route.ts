@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { exchangeCodeForToken, storeTokens } from "@/lib/mercadolivre";
+import { applyTokensToResponse, exchangeCodeForToken } from "@/lib/mercadolivre";
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
@@ -7,6 +7,8 @@ export async function GET(request: NextRequest) {
   const state = url.searchParams.get("state");
   const expectedState = request.cookies.get("meli_oauth_state")?.value;
   const homeUrl = new URL("/", request.url);
+
+  console.log(`Mercado Livre callback: code recebido=${Boolean(code)}, state confere=${state === expectedState}`);
 
   const response = NextResponse.redirect(homeUrl);
   response.cookies.delete("meli_oauth_state");
@@ -20,7 +22,8 @@ export async function GET(request: NextRequest) {
 
   try {
     const tokens = await exchangeCodeForToken(code);
-    await storeTokens(tokens);
+    applyTokensToResponse(response, tokens);
+    console.log("Mercado Livre callback: token armazenado no cookie httpOnly com sucesso.");
   } catch (error) {
     console.error("Falha ao trocar o código de autorização por um token do Mercado Livre:", error);
   }
