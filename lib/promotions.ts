@@ -1,6 +1,6 @@
 import { Promotion } from "@/types/promotion";
-import { fetchMercadoLivrePromotions } from "@/lib/mercadolivre";
+import { fetchMercadoLivreDeals } from "@/lib/mercadolivreDeals";
 
 export async function fetchPromotions(): Promise<Promotion[]> {
-  return fetchMercadoLivrePromotions();
+  return fetchMercadoLivreDeals();
 }
