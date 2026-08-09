@@ -21,7 +21,7 @@ export default function PromotionCard({ promotion }: { promotion: Promotion }) {
           alt={name}
           fill
           className="object-contain p-4"
-          sizes="(max-width: 640px) 100vw, 240px"
+          sizes="(max-width: 640px) 50vw, 240px"
         />
       </div>
 
