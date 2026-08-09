@@ -1,4 +1,5 @@
 import { Promotion } from "@/types/promotion";
+import { lookupAffiliateUrl } from "@/lib/affiliateLinks";
 
 /**
  * Public, unauthenticated integration with the Mercado Livre "Ofertas" page
@@ -178,6 +179,8 @@ function transformDeal(item: DealItem, polycardContext: PolycardContext): Promot
     ? Math.round(((previousPrice! - currentPrice) / previousPrice!) * 100)
     : null;
 
+  const plainProductUrl = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
+
   return {
     id,
     name: title,
@@ -186,7 +189,9 @@ function transformDeal(item: DealItem, polycardContext: PolycardContext): Promot
     previousPrice: hasDiscount ? previousPrice! : null,
     discountPercentage,
     store: extractSellerName(card),
-    productUrl: rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`,
+    // Sends visitors through the affiliate short link when this exact
+    // product has one; otherwise falls back to the plain Mercado Livre URL.
+    productUrl: lookupAffiliateUrl(plainProductUrl),
     // A página de ofertas mostra um preço já com cupom aplicado em alguns
     // casos, mas não expõe um código de cupom copiável — então não
     // inventamos um valor para este campo.

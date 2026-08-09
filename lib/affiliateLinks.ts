@@ -1,0 +1,172 @@
+/**
+ * Maps a Mercado Livre product URL (as returned by fetchMercadoLivreDeals)
+ * to the affiliate short link the user wants visitors sent to instead.
+ *
+ * These are pre-generated per-product links (meli.la — Mercado Livre's own
+ * affiliate program shortener). Each one only works for the exact product
+ * it was created for, so this is a snapshot tied to one catalog fetch, not
+ * something that can be derived automatically. As /ofertas rotates and new
+ * products appear, they won't have an entry here — lookupAffiliateUrl()
+ * falls back to the plain Mercado Livre link for those rather than sending
+ * visitors to the wrong product.
+ */
+const PRODUCT_TO_AFFILIATE_URL: [productUrl: string, affiliateUrl: string][] = [
+  [
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-the-black-tools-profissional-tb-21px-2-baterias-com-maleta-60hz-amarelo/p/MLB30144703",
+    "https://meli.la/1YQfF4K",
+  ],
+  [
+    "https://www.mercadolivre.com.br/power-bank-basike-20000mah-para-notebook-e-celular-com-cabo-usb-c-65w/p/MLB63033418",
+    "https://meli.la/1Xakjiq",
+  ],
+  [
+    "https://www.mercadolivre.com.br/testo-forged-zinco-magnesio-boro-cromo-vitamina-d3-b12-precursor-da-testo-120-capsulas-forged-nutrition/p/MLB66370937",
+    "https://meli.la/1uJN58U",
+  ],
+  [
+    "https://www.mercadolivre.com.br/fritadeira-eletrica-air-fryer-wap-barbecue-com-painel-digital-e-12-funcoes-220v/p/MLB27773890",
+    "https://meli.la/2FFFSJR",
+  ],
+  [
+    "https://www.mercadolivre.com.br/smartwatch-huawei-watch-gt-6-pro-46mm-bateria-com-autonomia-de-ate-21-dias-mais-de-100-modos-esportivos-corrida-de-trilha-golfe-ciclismo-analise-de-ecg-compativel-com-ios-e-android-gps-preto/p/MLB54589097",
+    "https://meli.la/1dyivNQ",
+  ],
+  [
+    "https://www.mercadolivre.com.br/celular-samsung-galaxy-a17-com-ia-256gb-8gb-ram-cam-de-50mp-tela-de-67-nfc-ip54-azul/p/MLB54982411",
+    "https://meli.la/1froDiP",
+  ],
+  [
+    "https://www.mercadolivre.com.br/fritadeira-air-fryer-oven-britania-11-litros-8-funcoes-1800w-baf11a/p/MLB62391404",
+    "https://meli.la/2G1VbCh",
+  ],
+  [
+    "https://www.mercadolivre.com.br/jogo-de-toalhas-4-pcs-fio-cardado-100-algodao-bosco-karsten/p/MLB54076558",
+    "https://meli.la/2ZFwSoU",
+  ],
+  [
+    "https://www.mercadolivre.com.br/console-playstation-5-slim-edicao-digital-825-gb/p/MLB54963150",
+    "https://meli.la/248TMMX",
+  ],
+  [
+    "https://www.mercadolivre.com.br/notebook-samsung-galaxy-book4-intel-u300-120-ghz-ate-44ghz-8-mb-l3-cache-windows-11-home-8gb-256gb-ssd-uhd-graphics-156-full-hd-led-155kg/p/MLB40347107",
+    "https://meli.la/33ucHsn",
+  ],
+  [
+    "https://www.mercadolivre.com.br/kit-10-pote-de-vidro-marmita-hermetico-640ml-freezer-fitness-rishon/p/MLB63904966",
+    "https://meli.la/2oJFsjs",
+  ],
+  [
+    "https://www.mercadolivre.com.br/smart-tv-profissional-4k-50-lg-uhd-50au801-processador-7-ai-ger8-super-upscaling-google-cast-alexa-integrado-controle-ai-smart-magic-webos-25/p/MLB61517857",
+    "https://meli.la/2tHsePy",
+  ],
+  [
+    "https://www.mercadolivre.com.br/smartwatch-huawei-band-11-pro-posicionamento-gnss-autonomo-tela-162-amoled-bateria-com-autonomia-de-ate-14-dias-monitoramento-aprimorado-do-sono-compativel-com-ios-e-android-preto/p/MLB64375526",
+    "https://meli.la/2KE9ke7",
+  ],
+  [
+    "https://www.mercadolivre.com.br/mochila-jiesipote-prova-dagua-reforcada-expansivel-cor-preto/p/MLB74678961",
+    "https://meli.la/2QCgBWF",
+  ],
+  [
+    "https://www.mercadolivre.com.br/tenis-esportivo-masculino-delta-olympikus/p/MLB19530922",
+    "https://meli.la/2USQ2tY",
+  ],
+  [
+    "https://www.mercadolivre.com.br/creatina-monohidratada-250g-growth-supplements-sem-sabor-em-po/p/MLB19603205",
+    "https://meli.la/18NsGxd",
+  ],
+  [
+    "https://www.mercadolivre.com.br/jogo-de-toalhas-4-pcs-fio-cardado-100-algodao-bosco-karsten-azul-serena-azul-naval-bosco/p/MLB53860436",
+    "https://meli.la/1m78EU2",
+  ],
+  [
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-a-bateria-21v-38-bivolt-1400-rpm-com-acessorios-e-maleta-tb-21pzw-the-black-tools/p/MLB60012839",
+    "https://meli.la/1a1Fw21",
+  ],
+  [
+    "https://www.mercadolivre.com.br/smartphone-infinix-smart-10-4gb-ram-256gb-ssd-camera-8mp-ia-tela-667-hd-120hz-bateria-5000mah-processador-t7250-android-15-go-dual-chip-preto/p/MLB56327005",
+    "https://meli.la/1VRafy2",
+  ],
+  [
+    "https://www.mercadolivre.com.br/smart-tv-32-philco-p32vik-roku-led-dolby-audio-hdr-wi-fi-110220v/p/MLB63036814",
+    "https://meli.la/1W396AE",
+  ],
+  [
+    "https://www.mercadolivre.com.br/smartwatch-huawei-band-10-caixa-de-polimeros-duraveis-analise-do-sono-em-nivel-profissional-assistente-de-bem-estar-emocional-relogio-smartwatch-compativel-com-android-e-ios-preto/p/MLB46202402",
+    "https://meli.la/1Tf55gz",
+  ],
+  [
+    "https://www.mercadolivre.com.br/caixa-de-som-speaker-aiwa-aws-sp-01-bluetooth-cor-preto/p/MLB26826554",
+    "https://meli.la/2h7h5Ah",
+  ],
+  [
+    "https://www.mercadolivre.com.br/creatina-monohidratada-500g-growth-supplements-sem-sabor-em-po/p/MLB66637233",
+    "https://meli.la/2wT1dEs",
+  ],
+  [
+    "https://www.mercadolivre.com.br/jogo-de-toalhas-buddemeyer-bella-extra-soft-banho-4-grafitecinza-lisa/p/MLB48810551",
+    "https://meli.la/1qi1GN3",
+  ],
+  [
+    "https://www.mercadolivre.com.br/smart-tv-profissional-4k-43-lg-uhd-43au801-processador-7-ai-ger8-super-upscaling-google-cast-alexa-integrado-controle-ai-smart-magic-webos-25/p/MLB60390574",
+    "https://meli.la/2GeRFJa",
+  ],
+  [
+    "https://www.mercadolivre.com.br/console-nintendo-switch-2-modelo-nacional-de-tomada/p/MLB49200061",
+    "https://meli.la/2groTr8",
+  ],
+  [
+    "https://www.mercadolivre.com.br/testo-essencial-formula-exclusiva-com-feno-grego-boro-arginina-zma-vitamina-b6-60-capsulas-precursor-da-testosterona/p/MLB58582424",
+    "https://meli.la/1xR9WG8",
+  ],
+  [
+    "https://www.mercadolivre.com.br/fritadeira-eletrica-air-fryer-oven-black-inox-wap-waod2/p/MLB43435820",
+    "https://meli.la/1WKzceP",
+  ],
+  [
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-impacto-brushless-13mm-21v-2-bateria/up/MLBU4467600567",
+    "https://meli.la/28gcNaj",
+  ],
+  [
+    "https://www.mercadolivre.com.br/smart-tv-roku-tv-50-7045-4k-uhd-aoc-bivolt/p/MLB51202548",
+    "https://meli.la/2F8pNkA",
+  ],
+  [
+    "https://www.mercadolivre.com.br/creatina-1kg-suplemento-monohidratada-em-po-100-pura-soldiers-nutrition/p/MLB18725310",
+    "https://meli.la/2VaM2av",
+  ],
+  [
+    "https://www.mercadolivre.com.br/ar-condicionado-split-inverter-12000-btuh-prime-air-f-12fc-cor-branco/p/MLB49209948",
+    "https://meli.la/2DRkrfR",
+  ],
+  [
+    "https://www.mercadolivre.com.br/smartphone-motorola-moto-g15-256gb-12gb-4gb-ram8gb-ram-boost-e-camera-50mp-com-ai-e-night-vision-bateria-de-5200-mah-tela-fhd-67-com-superbrilho-nfc-grafite/p/MLB44665473",
+    "https://meli.la/2eeXvBa",
+  ],
+  [
+    "https://www.mercadolivre.com.br/impressora-multifuncional-cor-epson-ecotank-l3250/p/MLB34229008",
+    "https://meli.la/1Ym1ja7",
+  ],
+  [
+    "https://www.mercadolivre.com.br/carregador-fonte-apple-ipad-iphone-turbo-original-usbc-20w/up/MLBU4284032987",
+    "https://meli.la/1S383GC",
+  ],
+  [
+    "https://www.mercadolivre.com.br/kit-10-pote-de-vidro-marmita-hermetico-370ml-freezer-fitness-rishon/p/MLB66060206",
+    "https://meli.la/1StELiX",
+  ],
+  [
+    "https://www.mercadolivre.com.br/monitor-gamer-aoc-agon-g42-27-200hz-03ms-ips-27g42he/p/MLB61372683",
+    "https://meli.la/1t13hkR",
+  ],
+  [
+    "https://www.mercadolivre.com.br/xiaomi-s40-robo-vacuum-aspirador-de-po-inteligente-branco-branco/p/MLB54775758",
+    "https://meli.la/2zrK8jn",
+  ],
+];
+
+const AFFILIATE_URL_BY_PRODUCT_URL = new Map(PRODUCT_TO_AFFILIATE_URL);
+
+export function lookupAffiliateUrl(productUrl: string): string {
+  return AFFILIATE_URL_BY_PRODUCT_URL.get(productUrl) ?? productUrl;
+}
