@@ -187,6 +187,42 @@ const PRODUCT_TO_AFFILIATE_URL: [productUrl: string, affiliateUrl: string][] = [
     "https://www.mercadolivre.com.br/cadeira-de-escritorio-ergonomica-fivdaily-c600-preta-com-apoio-de-cabeca-e-suporte-lombar/p/MLB63029755",
     "https://meli.la/2in8EA9",
   ],
+  [
+    "https://www.mercadolivre.com.br/creatina-monohidratada-pura-1kg-dark-lab-unidade-sem-sabor/p/MLB25929487",
+    "https://meli.la/2qrRPJp",
+  ],
+  [
+    "https://www.mercadolivre.com.br/monitor-aoc-215-120hz-1ms-gaming-hdmi-22b35hm23-preto/p/MLB47900489",
+    "https://meli.la/2GfnYKX",
+  ],
+  [
+    "https://www.mercadolivre.com.br/aspirador-de-po-portatil-bas01-po-e-agua-bivolt-60w-britania-cinza/p/MLB44028397",
+    "https://meli.la/26ew9Lu",
+  ],
+  [
+    "https://www.mercadolivre.com.br/smartphone-samsung-galaxy-a36-5g-128gb-6gb-ram-camera-tripla-de-ate-50mp-selfie-de-12mp-ip67-super-amoled-67-nfc-recursos-ai-android-e-seguranca-snapdragon-preto/p/MLB47115842",
+    "https://meli.la/1DTnqzD",
+  ],
+  [
+    "https://www.mercadolivre.com.br/vaso-sanitario-tubrax-monobloco-vab0002-caixa-acoplada-completo-privada-cor-branco/p/MLB24273671",
+    "https://meli.la/2XXUwiW",
+  ],
+  [
+    "https://www.mercadolivre.com.br/impressora-multifuncional-hp-deskjet-ink-advantage-2975-colorida-1-usb-20-de-alta-velocidade-wi-fi-de-banda-dupla-100-a-240-vca-aj4y4aak4/p/MLB62998911",
+    "https://meli.la/2vhYxj3",
+  ],
+  [
+    "https://www.mercadolivre.com.br/smart-tv-43-philco-p43vik-roku-led-dolby-audio-wi-fi-hdmi-hdr-full-hd-110220v/p/MLB63040715",
+    "https://meli.la/1SGYJHW",
+  ],
+  [
+    "https://www.mercadolivre.com.br/furadeira-parafusadeira-de-impacto-2-baterias-21v--46-pecas/up/MLBU3472399363",
+    "https://meli.la/297sf6V",
+  ],
+  [
+    "https://www.mercadolivre.com.br/notebook-acer-aspire-5-ryzen-5-5500u-vega7-8gb-ram-256gb-ssd-cor-prata/p/MLB65568122",
+    "https://meli.la/2bjr2k6",
+  ],
 ];
 
 const AFFILIATE_URL_BY_PRODUCT_URL = new Map(PRODUCT_TO_AFFILIATE_URL);
